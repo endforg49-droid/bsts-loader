@@ -1,5 +1,5 @@
 -- ═══════════════════════════════════════════════════════════════
--- BSTS-ID - LuxxyHub Loader v1.1
+-- BSTS-ID - LuxxyHub Loader v1.2
 -- Protected by Luxxy Key Auth
 -- ═══════════════════════════════════════════════════════════════
 
@@ -9,6 +9,7 @@ local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local HttpService = game:GetService("HttpService")
 local TweenService = game:GetService("TweenService")
+local StarterGui = game:GetService("StarterGui")
 local LocalPlayer = Players.LocalPlayer
 
 -- ═══ ANTI DOUBLE-RUN ═══
@@ -17,6 +18,14 @@ if _G.BSTS_LoaderRunning then
     return
 end
 _G.BSTS_LoaderRunning = true
+
+print("═══════════════════════════════════════════")
+print("[BSTS-ID] Loader v1.2 starting...")
+print("═══════════════════════════════════════════")
+print("[BSTS-ID] Executor: " .. (identifyexecutor and identifyexecutor() or "Unknown"))
+print("[BSTS-ID] Game: " .. game.Name .. " (PlaceId: " .. game.PlaceId .. ")")
+print("[BSTS-ID] writefile: " .. tostring(writefile ~= nil))
+print("[BSTS-ID] readfile: " .. tostring(readfile ~= nil))
 
 -- ═══ GET HWID ═══
 local function getHWID()
@@ -52,7 +61,6 @@ local function clearKeyFile()
 end
 
 -- ═══ CLEANUP UI LAMA ═══
--- Cek di PlayerGui DAN CoreGui
 pcall(function()
     local gui = LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("BSTS_KeyUI")
     if gui then gui:Destroy() end
@@ -70,7 +78,7 @@ sg.ResetOnSpawn = false
 sg.IgnoreGuiInset = true
 sg.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 sg.DisplayOrder = 999
-sg.Parent = LocalPlayer:WaitForChild("PlayerGui")  -- FIX: Pakai PlayerGui
+sg.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
 local backdrop = Instance.new("Frame")
 backdrop.Size = UDim2.new(1, 0, 1, 0)
@@ -81,13 +89,13 @@ backdrop.ZIndex = 1
 backdrop.Parent = sg
 
 local Main = Instance.new("Frame")
-Main.Size = UDim2.new(0, 380, 0, 290)  -- FIX: Langsung final size!
+Main.Size = UDim2.new(0, 380, 0, 290)
 Main.Position = UDim2.new(0.5, -190, 0.5, -145)
 Main.BackgroundColor3 = Color3.fromRGB(20, 25, 30)
 Main.BorderSizePixel = 0
 Main.Active = true
 Main.Draggable = true
-Main.BackgroundTransparency = 1  -- Start transparent (buat fade in)
+Main.BackgroundTransparency = 1
 Main.ZIndex = 10
 Main.Parent = sg
 
@@ -110,7 +118,6 @@ ms.Color = Color3.fromRGB(0, 255, 150)
 ms.Transparency = 0.3
 ms.Parent = Main
 
--- Title
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, -40, 0, 35)
 title.Position = UDim2.new(0, 20, 0, 15)
@@ -234,12 +241,23 @@ footer.TextXAlignment = Enum.TextXAlignment.Center
 footer.ZIndex = 20
 footer.Parent = Main
 
--- FIX: Animasi cuma fade in, size GAK diubah
+-- Fade in
 task.spawn(function()
     pcall(function()
         TweenService:Create(Main, TweenInfo.new(0.4), {BackgroundTransparency = 0}):Play()
     end)
 end)
+
+-- ═══ NOTIFIKASI ═══
+local function notify(titleText, textText, duration)
+    pcall(function()
+        StarterGui:SetCore("SendNotification", {
+            Title = titleText or "BSTS-ID - LuxxyHub",
+            Text = textText or "",
+            Duration = duration or 5,
+        })
+    end)
+end
 
 -- ═══ LOAD SCRIPT ═══
 local isProcessing = false
@@ -248,29 +266,44 @@ local function loadScript(key)
     if isProcessing then return end
     isProcessing = true
 
+    print("[BSTS-ID] === Memulai verifikasi key ===")
     status.Text = "Memverifikasi..."
     status.TextColor3 = Color3.fromRGB(255, 200, 60)
     btn.Text = "TUNGGU..."
 
     local hwid = getHWID()
+    print("[BSTS-ID] HWID: " .. hwid:sub(1, 30) .. "...")
     local url = WORKER_URL .. "/get-script?key=" .. HttpService:UrlEncode(key) .. "&hwid=" .. HttpService:UrlEncode(hwid)
 
     task.spawn(function()
-        local ok, resp = pcall(function() return game:HttpGet(url, true) end)
+        -- Retry 3x kalau gagal
+        local resp, ok
+        for attempt = 1, 3 do
+            ok, resp = pcall(function() return game:HttpGet(url, true) end)
+            if ok and resp then break end
+            print("[BSTS-ID] Attempt " .. attempt .. " gagal, retry...")
+            task.wait(0.5)
+        end
 
         if not ok or not resp then
+            print("[BSTS-ID] ❌ Gagal konek ke server")
             status.Text = "Gagal konek ke server"
             status.TextColor3 = Color3.fromRGB(255, 80, 80)
             btn.Text = "VERIFIKASI KEY"
+            notify("BSTS-ID - LuxxyHub", "Gagal konek ke server. Cek internet!", 5)
             isProcessing = false
             return
         end
 
+        print("[BSTS-ID] Response: " .. resp:sub(1, 100) .. "...")
+
         local ok2, data = pcall(function() return HttpService:JSONDecode(resp) end)
         if not ok2 or not data then
+            print("[BSTS-ID] ❌ Response invalid")
             status.Text = "Response server invalid"
             status.TextColor3 = Color3.fromRGB(255, 80, 80)
             btn.Text = "VERIFIKASI KEY"
+            notify("BSTS-ID - LuxxyHub", "Response server invalid", 5)
             isProcessing = false
             return
         end
@@ -283,34 +316,60 @@ local function loadScript(key)
                 msg = "Key dipakai di device lain!"
                 clearKeyFile()
             end
+            print("[BSTS-ID] ❌ Error: " .. data.error)
             status.Text = msg
             status.TextColor3 = Color3.fromRGB(255, 80, 80)
             btn.Text = "VERIFIKASI KEY"
+            notify("BSTS-ID - LuxxyHub", msg, 5)
             isProcessing = false
             return
         end
 
         if not data.script then
+            print("[BSTS-ID] ❌ Script kosong")
             status.Text = "Script tidak ditemukan"
             status.TextColor3 = Color3.fromRGB(255, 80, 80)
             btn.Text = "VERIFIKASI KEY"
+            notify("BSTS-ID - LuxxyHub", "Script tidak ditemukan", 5)
             isProcessing = false
             return
         end
 
+        print("[BSTS-ID] ✅ Key valid, script size: " .. #data.script .. " chars")
+
+        -- Save key
         saveKeyFile(key)
+
         status.Text = "Berhasil! Memuat script..."
         status.TextColor3 = Color3.fromRGB(80, 255, 150)
         btn.Text = "LOADING..."
 
-        task.wait(0.5)
+        task.wait(1)
         sg:Destroy()
 
+        print("[BSTS-ID] Compiling script...")
         local fn, err = loadstring(data.script)
-        if fn then
-            fn()
+
+        if not fn then
+            print("[BSTS-ID] ❌ COMPILE ERROR!")
+            print("[BSTS-ID] Error: " .. tostring(err))
+            warn("[BSTS-ID] ❌ Gagal compile script! Error: " .. tostring(err))
+            notify("BSTS-ID - LuxxyHub", "Script error. Cek Console Delta!", 7)
+            _G.BSTS_LoaderRunning = false
+            return
+        end
+
+        print("[BSTS-ID] Executing script...")
+        local execOk, execErr = pcall(fn)
+
+        if not execOk then
+            print("[BSTS-ID] ❌ EXECUTE ERROR!")
+            print("[BSTS-ID] Error: " .. tostring(execErr))
+            warn("[BSTS-ID] ❌ Gagal eksekusi script! Error: " .. tostring(execErr))
+            notify("BSTS-ID - LuxxyHub", "Error saat menjalankan. Cek Console!", 7)
         else
-            warn("[BSTS-ID] Script error: " .. tostring(err))
+            print("[BSTS-ID] ✅ Script berhasil dijalankan!")
+            notify("BSTS-ID - LuxxyHub", "Script berhasil dimuat!", 3)
         end
     end)
 end
@@ -338,16 +397,22 @@ clearBtn.MouseButton1Click:Connect(function()
     input.Text = ""
     status.Text = "Key tersimpan dihapus"
     status.TextColor3 = Color3.fromRGB(255, 200, 60)
+    notify("BSTS-ID - LuxxyHub", "Key tersimpan dihapus", 3)
 end)
 
 -- ═══ AUTO-LOGIN ═══
 task.spawn(function()
     local savedKey = loadKeyFile()
     if savedKey then
+        print("[BSTS-ID] Auto-login dengan key tersimpan...")
         input.Text = savedKey
         status.Text = "Auto-login..."
         status.TextColor3 = Color3.fromRGB(255, 200, 60)
         task.wait(0.5)
         loadScript(savedKey)
+    else
+        print("[BSTS-ID] Gak ada key tersimpan, tunggu input manual.")
     end
 end)
+
+print("[BSTS-ID] Loader ready!")
