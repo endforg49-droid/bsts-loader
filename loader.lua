@@ -1,13 +1,13 @@
 -- ═══════════════════════════════════════════════════════════════
--- BSTS-ID - LuxxyHub Loader v2.0
--- Purple Edition + Background Logo + Animated Border
+-- BSTS-ID - LuxxyHub Loader v2.2
+-- White/Grey Edition + Match Logo & Toggle ID
 -- ═══════════════════════════════════════════════════════════════
 
 local WORKER_URL = "https://bsts-key-server.haloyypayo.workers.dev"
 
--- ═══ IMAGE ASSETS ═══
-local IMG_LOGO = "rbxassetid://72484610504506"
-local IMG_TOGGLE = "rbxassetid://125806010780793"
+-- ═══ IMAGE ASSETS (UDAH DISAMAIN SAMA V12.0) ═══
+local IMG_LOGO = "rbxassetid://88353934832481"
+local IMG_TOGGLE = "rbxassetid://88353934832481"
 
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
@@ -24,23 +24,21 @@ end
 _G.BSTS_LoaderRunning = true
 
 print("═══════════════════════════════════════════")
-print("[BSTS-ID] Loader v2.0 starting...")
+print("[BSTS-ID] Loader v2.2 starting...")
 print("═══════════════════════════════════════════")
 print("[BSTS-ID] Executor: " .. (identifyexecutor and identifyexecutor() or "Unknown"))
 print("[BSTS-ID] Game: " .. game.Name .. " (PlaceId: " .. game.PlaceId .. ")")
 
--- ═══ THEME UNGU ═══
+-- ═══ THEME PUTIH/ABU ═══
 local COLOR = {
     White = Color3.fromRGB(255, 255, 255),
     Black = Color3.fromRGB(0, 0, 0),
-    Purple1 = Color3.fromRGB(180, 100, 255),
-    Purple2 = Color3.fromRGB(140, 60, 220),
-    Purple3 = Color3.fromRGB(100, 40, 180),
-    PurpleLight = Color3.fromRGB(220, 180, 255),
-    BG = Color3.fromRGB(15, 10, 25),
-    BG2 = Color3.fromRGB(25, 15, 40),
-    Text = Color3.fromRGB(240, 220, 255),
-    TextDim = Color3.fromRGB(180, 150, 220),
+    GreyDark = Color3.fromRGB(20, 20, 20),
+    GreyMed = Color3.fromRGB(60, 60, 60),
+    BG = Color3.fromRGB(25, 25, 30),       
+    BG2 = Color3.fromRGB(35, 35, 45),      
+    Text = Color3.fromRGB(255, 255, 255),
+    TextDim = Color3.fromRGB(150, 150, 150),
     Error = Color3.fromRGB(220, 60, 60),
     Success = Color3.fromRGB(80, 200, 100),
     Warning = Color3.fromRGB(255, 200, 60),
@@ -181,7 +179,7 @@ backdrop.BorderSizePixel = 0
 backdrop.ZIndex = 1
 backdrop.Parent = sg
 
--- Main Wrapper (buat border animated)
+-- Main Wrapper
 local MainWrapper = Instance.new("Frame")
 MainWrapper.Name = "MainWrapper"
 MainWrapper.Size = UDim2.new(0, 380, 0, 320)
@@ -208,17 +206,17 @@ local mc = Instance.new("UICorner")
 mc.CornerRadius = UDim.new(0, 18)
 mc.Parent = Main
 
--- Gradient ungu
+-- Gradient (Hitam/Abu-abu gelap)
 local mg = Instance.new("UIGradient")
 mg.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, COLOR.BG),
-    ColorSequenceKeypoint.new(0.5, COLOR.BG2),
-    ColorSequenceKeypoint.new(1, COLOR.BG),
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(60, 60, 70)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(25, 25, 30)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(60, 60, 70)),
 })
 mg.Rotation = 45
 mg.Parent = Main
 
--- ═══ BACKGROUND LOGO (transparan) ═══
+-- ═══ BACKGROUND LOGO ═══
 local bgLogo = Instance.new("ImageLabel")
 bgLogo.Name = "BgLogo"
 bgLogo.Size = UDim2.new(1, 0, 1, 0)
@@ -226,7 +224,7 @@ bgLogo.Position = UDim2.new(0, 0, 0, 0)
 bgLogo.BackgroundTransparency = 1
 bgLogo.Image = IMG_LOGO
 bgLogo.ImageColor3 = Color3.fromRGB(255, 255, 255)
-bgLogo.ImageTransparency = 0.85  -- Sangat transparan
+bgLogo.ImageTransparency = 0.85
 bgLogo.ScaleType = Enum.ScaleType.Fit
 bgLogo.ZIndex = 11
 bgLogo.Parent = Main
@@ -234,7 +232,7 @@ bgLogo.Parent = Main
 -- ═══ ANIMATED BORDER ═══
 createAnimatedBorder(MainWrapper, 18, 3)
 
--- ═══ CONTENT LAYER (di atas bg) ═══
+-- ═══ CONTENT LAYER ═══
 local Content = Instance.new("Frame")
 Content.Name = "Content"
 Content.Size = UDim2.new(1, 0, 1, 0)
@@ -248,7 +246,7 @@ title.Size = UDim2.new(1, -40, 0, 35)
 title.Position = UDim2.new(0, 20, 0, 18)
 title.BackgroundTransparency = 1
 title.Text = "BSTS-ID - LuxxyHub"
-title.TextColor3 = COLOR.Purple1
+title.TextColor3 = COLOR.White
 title.Font = Enum.Font.GothamBlack
 title.TextSize = 18
 title.TextXAlignment = Enum.TextXAlignment.Center
@@ -271,7 +269,7 @@ sub.Parent = Content
 local div = Instance.new("Frame")
 div.Size = UDim2.new(1, -60, 0, 1)
 div.Position = UDim2.new(0, 30, 0, 82)
-div.BackgroundColor3 = COLOR.Purple1
+div.BackgroundColor3 = COLOR.White
 div.BackgroundTransparency = 0.5
 div.BorderSizePixel = 0
 div.ZIndex = 20
@@ -281,12 +279,12 @@ div.Parent = Content
 local input = Instance.new("TextBox")
 input.Size = UDim2.new(1, -40, 0, 45)
 input.Position = UDim2.new(0, 20, 0, 100)
-input.BackgroundColor3 = Color3.fromRGB(10, 5, 20)
+input.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 input.BorderSizePixel = 0
 input.PlaceholderText = "BSTS-XXXX-XXXX-XXXX"
-input.PlaceholderColor3 = Color3.fromRGB(120, 90, 160)
+input.PlaceholderColor3 = Color3.fromRGB(100, 100, 100)
 input.Text = ""
-input.TextColor3 = COLOR.PurpleLight
+input.TextColor3 = COLOR.White
 input.Font = Enum.Font.Code
 input.TextSize = 14
 input.TextXAlignment = Enum.TextXAlignment.Center
@@ -300,8 +298,8 @@ ic.Parent = input
 
 local istroke = Instance.new("UIStroke")
 istroke.Thickness = 1.5
-istroke.Color = COLOR.Purple1
-istroke.Transparency = 0.4
+istroke.Color = COLOR.GreyMed
+istroke.Transparency = 0.2
 istroke.Parent = input
 
 -- Status
@@ -310,21 +308,21 @@ status.Size = UDim2.new(1, -40, 0, 18)
 status.Position = UDim2.new(0, 20, 0, 152)
 status.BackgroundTransparency = 1
 status.Text = ""
-status.TextColor3 = COLOR.PurpleLight
+status.TextColor3 = COLOR.White
 status.Font = Enum.Font.GothamBold
 status.TextSize = 11
 status.TextXAlignment = Enum.TextXAlignment.Center
 status.ZIndex = 20
 status.Parent = Content
 
--- Verify Button
+-- Verify Button (Putih / Abu terang)
 local btn = Instance.new("TextButton")
 btn.Size = UDim2.new(1, -40, 0, 42)
 btn.Position = UDim2.new(0, 20, 0, 175)
-btn.BackgroundColor3 = COLOR.Purple1
+btn.BackgroundColor3 = COLOR.White
 btn.BorderSizePixel = 0
 btn.Text = "VERIFIKASI KEY"
-btn.TextColor3 = COLOR.White
+btn.TextColor3 = COLOR.Black
 btn.Font = Enum.Font.GothamBold
 btn.TextSize = 14
 btn.ZIndex = 100
@@ -336,8 +334,8 @@ bc.Parent = btn
 
 local bgGrad = Instance.new("UIGradient")
 bgGrad.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, COLOR.PurpleLight),
-    ColorSequenceKeypoint.new(1, COLOR.Purple2),
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(180, 180, 180)),
 })
 bgGrad.Rotation = 90
 bgGrad.Parent = btn
